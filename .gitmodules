@@ -1,3 +1,6 @@
 [submodule "XBeeAPI_lib"]
 	path = XBeeAPI_lib
 	url = https://github.com/SatoshiRC/XBee3.0-API.git
+[submodule "encorer_lib"]
+	path = encorer_lib
+	url = https://gitlab.com/grcc/library/encoder.git
