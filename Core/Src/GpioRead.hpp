@@ -19,7 +19,9 @@ private:
 	bool pinState;
 	bool originalPinState;
 	bool holdValue;
-	uint8_t delayTim;
+	bool repeatedly;
+	bool stickyRepeatedly;
+	uint8_t delayTim; //chattering
 public:
 	GpioRead(GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin, bool normalState);
 	void update();
@@ -27,8 +29,10 @@ public:
 	uint8_t getPressed();
 	uint8_t getReleased();
 	uint8_t getDuring();
-	uint8_t getRepeatedly(uint16_t outputPeriod, uint16_t waitingTim); //while the button is down
-	uint8_t getStickyRepeatedly(uint16_t outputPeriod, uint16_t waitingTim); //repeatedly until button is pressed again
+	void updateRepeatedly(uint16_t outputPeriod, uint16_t waitingTim);
+	uint8_t getRepeatedly(); //while the button is down
+	void updateStickyRepeatedly(uint16_t outputPeriod, uint16_t waitingTim);
+	uint8_t getStickyRepeatedly(); //repeatedly until button is pressed again
 	uint8_t getStickyHold(); //hold down until button is pressed again
 };
 

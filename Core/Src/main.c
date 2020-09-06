@@ -94,13 +94,13 @@ int main(void)
   MX_ADC1_Init();
   MX_ADC2_Init();
   MX_ADC3_Init();
-  MX_ADC4_Init();
   MX_I2C1_Init();
   MX_I2C2_Init();
   MX_UART4_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_TIM17_Init();
+  MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
   init();//written by user
   /* USER CODE END 2 */

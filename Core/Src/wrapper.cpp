@@ -15,33 +15,40 @@
 #include <bitset>
 
 #include "GpioRead.hpp"
+#include "encoder.hpp"
+#include "xbee.hpp"
 /* Include End */
 
 /* Define Begin */
 #define numberGPIO 20
 #define number
+#define XBee_AT_MODE 0
+#define XBee_CLASS_DEBUG 1
+#define I2C 0
 /* Define End */
 
-/* Variable Begin */
-uint8_t button[numberGPIO/8+1];
 
+/* Variable Begin */
 //gpio pin setting
 struct Gpio{
-	GPIO_TypeDef * GPIOx;
-	uint16_t GPIO_Pin;
+	GPIO_TypeDef * port;
+	uint16_t pin;
 };
 Gpio trmPin[8] = { {GPIOB, GPIO_PIN_4}, {GPIOB, GPIO_PIN_6}, {GPIOA, GPIO_PIN_10}, {GPIOA, GPIO_PIN_9},
 				{GPIOA, GPIO_PIN_8}, {GPIOC, GPIO_PIN_9}, {GPIOC, GPIO_PIN_8}, {GPIOC, GPIO_PIN_7},  };
 Gpio sw1Pin[5] = { {GPIOA, GPIO_PIN_6}, {GPIOA, GPIO_PIN_7}, {GPIOB, GPIO_PIN_2}, {GPIOB, GPIO_PIN_10}, {GPIOB, GPIO_PIN_11} };
-Gpio sw2Pin[5] = { {GPIOC, GPIO_PIN_4}, {GPIOC, GPIO_PIN_5}, {GPIOB, GPIO_PIN_0}, {GPIOB, GPIO_PIN_12}, {GPIOB, GPIO_PIN_13} };
+Gpio sw2Pin[5] = { {GPIOC, GPIO_PIN_4}, {GPIOC, GPIO_PIN_5}, {GPIOB, GPIO_PIN_0}, {GPIOB, GPIO_PIN_12}, {GPIOB, GPIO_PIN_14} };
 Gpio btnPin[6] = { {GPIOC, GPIO_PIN_2}, {GPIOC, GPIO_PIN_1}, {GPIOC, GPIO_PIN_0}, {GPIOC, GPIO_PIN_15}, {GPIOB, GPIO_PIN_8}, {GPIOB, GPIO_PIN_9} };
 Gpio edtPin[5] = { {GPIOC, GPIO_PIN_14}, {GPIOC, GPIO_PIN_13}, {GPIOC, GPIO_PIN_6}, {GPIOB, GPIO_PIN_15}, {GPIOB, GPIO_PIN_3} };
-Gpio LED[2]    = { {GPIOD, GPIO_PIN_2}, {GPIOA, GPIO_PIN_3} };
+Gpio led[2]    = { {GPIOD, GPIO_PIN_2}, {GPIOA, GPIO_PIN_3} };
 uint8_t testSw1[5];
 
 //adc
-uint8_t adcbuf[9];
+uint8_t adcbuf1[5] = {};
+uint8_t adcbuf2[4] = {};
+uint8_t adcbuf3[3] = {};
 uint8_t stkOffset[4];
+uint8_t vrOffset[5];
 
 //communication data 通信データ
 struct DataControllerToMain{
@@ -50,169 +57,166 @@ struct DataControllerToMain{
 	uint8_t sw2;
 	uint8_t btn;
 	uint8_t edt;
-	uint8_t stk[4]; //RX, RY, LX, LY
+	int8_t stk[4]; //RX, RY, LX, LY
 	uint8_t vr[5];
 };
-DataControllerToMain data;
+DataControllerToMain data1;
 
-/* Variable End */
 
-/* Class Constructor Begin */
+xbee_c<sizeof(DataControllerToMain)+18> xbee;
+uint8_t transmitStatusPacket[xbee.getTransmitStatusPacketSize()];
+
 GpioRead readTrm[] = {
-		GpioRead(trmPin[0].GPIOx, trmPin[0].GPIO_Pin, 1),
-		GpioRead(trmPin[1].GPIOx, trmPin[1].GPIO_Pin, 1),
-		GpioRead(trmPin[2].GPIOx, trmPin[2].GPIO_Pin, 1),
-		GpioRead(trmPin[3].GPIOx, trmPin[3].GPIO_Pin, 1),
-		GpioRead(trmPin[4].GPIOx, trmPin[4].GPIO_Pin, 1),
-		GpioRead(trmPin[5].GPIOx, trmPin[5].GPIO_Pin, 1),
-		GpioRead(trmPin[6].GPIOx, trmPin[6].GPIO_Pin, 1),
-		GpioRead(trmPin[7].GPIOx, trmPin[7].GPIO_Pin, 1)
+		GpioRead(trmPin[0].port, trmPin[0].pin, 1),
+		GpioRead(trmPin[1].port, trmPin[1].pin, 1),
+		GpioRead(trmPin[2].port, trmPin[2].pin, 1),
+		GpioRead(trmPin[3].port, trmPin[3].pin, 1),
+		GpioRead(trmPin[4].port, trmPin[4].pin, 1),
+		GpioRead(trmPin[5].port, trmPin[5].pin, 1),
+		GpioRead(trmPin[6].port, trmPin[6].pin, 1),
+		GpioRead(trmPin[7].port, trmPin[7].pin, 1)
 };
 GpioRead readSw1[] = {
-		GpioRead(sw1Pin[0].GPIOx, sw1Pin[0].GPIO_Pin, 1),
-		GpioRead(sw1Pin[1].GPIOx, sw1Pin[1].GPIO_Pin, 1),
-		GpioRead(sw1Pin[2].GPIOx, sw1Pin[2].GPIO_Pin, 1),
-		GpioRead(sw1Pin[3].GPIOx, sw1Pin[3].GPIO_Pin, 1),
-		GpioRead(sw1Pin[4].GPIOx, sw1Pin[4].GPIO_Pin, 1)
+		GpioRead(sw1Pin[0].port, sw1Pin[0].pin, 1),
+		GpioRead(sw1Pin[1].port, sw1Pin[1].pin, 1),
+		GpioRead(sw1Pin[2].port, sw1Pin[2].pin, 1),
+		GpioRead(sw1Pin[3].port, sw1Pin[3].pin, 1),
+		GpioRead(sw1Pin[4].port, sw1Pin[4].pin, 1)
 };
 GpioRead readSw2[] = {
-		GpioRead(sw2Pin[0].GPIOx, sw2Pin[0].GPIO_Pin, 1),
-		GpioRead(sw2Pin[1].GPIOx, sw2Pin[1].GPIO_Pin, 1),
-		GpioRead(sw2Pin[2].GPIOx, sw2Pin[2].GPIO_Pin, 1),
-		GpioRead(sw2Pin[3].GPIOx, sw2Pin[3].GPIO_Pin, 1),
-		GpioRead(sw2Pin[4].GPIOx, sw2Pin[4].GPIO_Pin, 0)
+		GpioRead(sw2Pin[0].port, sw2Pin[0].pin, 1),
+		GpioRead(sw2Pin[1].port, sw2Pin[1].pin, 1),
+		GpioRead(sw2Pin[2].port, sw2Pin[2].pin, 0),
+		GpioRead(sw2Pin[3].port, sw2Pin[3].pin, 0),
+		GpioRead(sw2Pin[4].port, sw2Pin[4].pin, 0)
 };
 GpioRead readEdt[] = {
-		GpioRead(edtPin[0].GPIOx, edtPin[0].GPIO_Pin, 1),
-		GpioRead(edtPin[1].GPIOx, edtPin[1].GPIO_Pin, 1),
-		GpioRead(edtPin[2].GPIOx, edtPin[2].GPIO_Pin, 1),
-		GpioRead(edtPin[3].GPIOx, edtPin[3].GPIO_Pin, 1),
-		GpioRead(edtPin[4].GPIOx, edtPin[4].GPIO_Pin, 1)
+		GpioRead(edtPin[0].port, edtPin[0].pin, 1),
+		GpioRead(edtPin[1].port, edtPin[1].pin, 1),
+		GpioRead(edtPin[2].port, edtPin[2].pin, 1),
+		GpioRead(edtPin[3].port, edtPin[3].pin, 1),
+		GpioRead(edtPin[4].port, edtPin[4].pin, 1)
 };
-/* Class Constructor End */
+/* Variable End */
 
+/* Function Prototype Begin */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
+/* Function Prototype End */
 
 void init(void){
 	//adc start
-	/*
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&adcbuf[0], 4);
-	HAL_ADC_Start_DMA(&hadc2, (uint32_t *)&adcbuf[4], 3);
-	HAL_ADC_Start_DMA(&hadc3, (uint32_t *)&adcbuf[7], 1);
-	HAL_ADC_Start_DMA(&hadc4, (uint32_t *)&adcbuf[8], 1);
-	*/
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adcbuf1, 4);
+	HAL_ADC_Start_DMA(&hadc2, (uint32_t *)adcbuf2, 3);
+	HAL_ADC_Start_DMA(&hadc3, (uint32_t *)adcbuf3, 2);
 	//music 起動音
 
 	//adcオフセット値
-	stkOffset[0] = data.stk[0] = adcbuf[4];
-	stkOffset[1] = data.stk[1] = adcbuf[0];
-	stkOffset[2] = data.stk[2] = adcbuf[1];
-	stkOffset[3] = data.stk[3] = adcbuf[2];
-
-	HAL_GPIO_WritePin(LED[0].GPIOx, LED[0].GPIO_Pin, GPIO_PIN_SET);
+	HAL_Delay(10);
+	stkOffset[0] = adcbuf2[0];
+	stkOffset[1] = adcbuf1[0];
+	stkOffset[2] = adcbuf1[1];
+	stkOffset[3] = adcbuf1[2];
+	//tim start
+	HAL_TIM_Base_Start_IT(&htim17);
+	HAL_TIM_Base_Start_IT(&htim16);
+	
+	HAL_UART_Receive_IT(&huart4, (uint8_t*)transmitStatusPacket, sizeof(transmitStatusPacket));
 }
 
 void loop(void){
-	//GPIO
-	//trm
-	data.trm = 0;
-	for(uint8_t i=0; i < (sizeof(trmPin)/sizeof(Gpio)); i++){
-		readTrm[i].update();
-		data.trm |= readTrm[i].getRepeatedly(500, 1000) << i;
-		testSw1[i] += readTrm[i].getRepeatedly(500, 1000);
-	}
-	//sw1
-	data.sw1 = 0;
-	for(uint8_t i=0; i < 5/*(sizeof(sw1Pin)/sizeof(Gpio))*/; i++){
-		readSw1[i].update();
-		data.sw1 |= readSw1[i].getDuring() << i;
-	}
-	//sw2
-	data.sw2 = 0;
-	for(uint8_t i=0; i < (sizeof(sw2Pin)/sizeof(Gpio)); i++){
-		readSw2[i].update();
-		data.sw2 |= readSw2[i].getDuring() << i;
-	}
-	//edt
-	data.edt = 0;
-	for(uint8_t i=0; i < (sizeof(edtPin)/sizeof(Gpio)); i++){
-		readEdt[i].update();
-		data.edt |= readEdt[i].getPressed() << i;
-	}
-
-	//ADC
-
-	//update offset 符号はあとから変える
-	stkOffset[0] += readTrm[0].getRepeatedly(500, 1000);
-	stkOffset[0] -= readTrm[1].getRepeatedly(500, 1000);
-	stkOffset[1] += readTrm[2].getRepeatedly(500, 1000);
-	stkOffset[1] -= readTrm[3].getRepeatedly(500, 1000);
-	stkOffset[2] += readTrm[4].getRepeatedly(500, 1000);
-	stkOffset[2] -= readTrm[5].getRepeatedly(500, 1000);
-	stkOffset[3] += readTrm[6].getRepeatedly(500, 1000);
-	stkOffset[3] -= readTrm[7].getRepeatedly(500, 1000);
-
-	//ADC1
-	data.stk[1] = adcbuf[0] - stkOffset[1];
-	data.stk[2] = adcbuf[1] - stkOffset[2];
-	data.stk[3] = adcbuf[2] - stkOffset[3];
-	data.vr[0]  = adcbuf[3];
-	//ADC2
-	data.stk[0] = adcbuf[4] - stkOffset[0];
-	data.vr[1]  = adcbuf[5];
-	data.vr[2]  = adcbuf[6];
-	//ADC3
-	data.vr[3]  = adcbuf[7];
-	//ADC4
-	data.vr[4]  = adcbuf[8];
-
-	/*
-	for(uint8_t count; count < numberGPIO; count++){
-		if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_SET){//1 真 押してないとき
-			gpio.set(count-1);// aこのbitを1にする
-		}else{//0 偽 押したとき
-			gpio.reset(count-1);//このbitを0にする
-		}
-	}*/
-/*
-	for(uint8_t i; i < numberGPIO; i++){ // スイッチの読み取り
-		if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_SET){//1 真 押してないとき
-			button[i/8] = 1 << (i%8);
-		}
-	}
-*/
-	/*
-	int n;
-	int a;
-	for (uint8_t i=0; i<8; i++){
-		int befa = a;
-		a &= HAL_GPIO_ReadPin(trm[i].GPIOx, trm[i].GPIO_Pin) << i;
-		b &= ((befa));
-	}
-	*/
-
-	/*
-	//i2c通信
-	if( HAL_I2C_Master_Transmit(&hi2c1, Address << 1, &data, sizeof(data), 0xFFF) ){
-		HAL_GPIO_WritePin(GPIOx::trim[2], GPIO_Pin::trim[2], GPIO_PIN_SET);
-	}else{
-		HAL_GPIO_WritePin(GPIOx::trim[2], GPIO_Pin::trim[2], GPIO_PIN_RESET);
-	}
-	*/
-	//UART通信
-	if( HAL_UART_Transmit_IT(&huart4, (uint8_t*)&data, sizeof(data)) ){
-		HAL_GPIO_WritePin(LED[1].GPIOx, LED[1].GPIO_Pin, GPIO_PIN_SET);
-	}else{
-		HAL_GPIO_WritePin(LED[1].GPIOx, LED[1].GPIO_Pin, GPIO_PIN_RESET);
-	}
-
 }
 
 /* Function Body Begin */
+/*
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc){
 }
+*/
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim == &htim17){
+		HAL_GPIO_TogglePin(led[0].port, led[0].pin);
+		/*update input interface begin*/
+		//GPIO
+		//trm
+		data1.trm = 0;
+		for(uint8_t i=0; i < (sizeof(trmPin)/sizeof(Gpio)); i++){
+			readTrm[i].update();
+			readTrm[i].updateRepeatedly(200, 1000);
+			data1.trm |= readTrm[i].getRepeatedly() << i;
+		}
+		//sw1
+		data1.sw1 = 0;
+		for(uint8_t i=0; i < 5/*(sizeof(sw1Pin)/sizeof(Gpio))*/; i++){
+			readSw1[i].update();
+			data1.sw1 |= readSw1[i].getDuring() << i;
+		}
+		//sw2
+		data1.sw2 = 0;
+		for(uint8_t i=0; i < (sizeof(sw2Pin)/sizeof(Gpio)); i++){
+			readSw2[i].update();
+			data1.sw2 |= readSw2[i].getDuring() << i;
+		}
+		//edt
+		data1.edt = 0;
+		for(uint8_t i=0; i < (sizeof(edtPin)/sizeof(Gpio)); i++){
+			readEdt[i].update();
+			data1.edt |= readEdt[i].getPressed() << i;
+		}
 
+		//ADC
+		//update offset 符号はあとから変える
+		stkOffset[0] -= readTrm[0].getRepeatedly();
+		stkOffset[0] += readTrm[1].getRepeatedly();
+		stkOffset[1] -= readTrm[2].getRepeatedly();
+		stkOffset[1] += readTrm[3].getRepeatedly();
+		stkOffset[2] += readTrm[6].getRepeatedly();
+		stkOffset[2] -= readTrm[7].getRepeatedly();
+		stkOffset[3] += readTrm[4].getRepeatedly();
+		stkOffset[3] -= readTrm[5].getRepeatedly();
+
+		//uprate adc
+		data1.stk[0] =   (adcbuf2[0] - stkOffset[0] );
+		data1.stk[1] = - (adcbuf1[0] - stkOffset[1] );
+		data1.stk[2] =   (adcbuf1[1] - stkOffset[2] );
+		data1.stk[3] = - (adcbuf1[2] - stkOffset[3] );
+
+		data1.vr[0]  = 255 - adcbuf2[1];
+		data1.vr[1]  = 255 - adcbuf2[2];
+		data1.vr[2]  = 255 - adcbuf1[3];
+		data1.vr[3]  = 255 - adcbuf3[0];
+		data1.vr[4]  = 255 - adcbuf3[1];
+		/*update input interface end*/
+
+#if I2C
+		//i2c通信
+		if( HAL_I2C_Master_Transmit(&hi2c1, Address << 1, &data, sizeof(data), 0xFFF) ){
+			HAL_GPIO_WritePin(GPIOx::trim[2], GPIO_Pin::trim[2], GPIO_PIN_SET);
+		}else{
+			HAL_GPIO_WritePin(GPIOx::trim[2], GPIO_Pin::trim[2], GPIO_PIN_RESET);
+		}
+#endif
+		xbee.assemblyTransmitPacket(data1, (uint64_t)0x0013A200419834AA);
+
+		HAL_UART_AbortReceive_IT(&huart4);
+		while(HAL_OK != HAL_UART_Transmit(&huart4, xbee.getBufAddress(), xbee.getBufSize(), 100));
+		HAL_UART_Receive_IT(&huart4, (uint8_t*)transmitStatusPacket, sizeof(transmitStatusPacket));
+		xbee.isSuccessTransmitStatus(transmitStatusPacket);
+//		if(xbee.isSuccessTransmitStatus(transmitStatusPacket)){
+//			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
+//		}else{
+//			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
+//		}
+	}else if(htim == &htim16){
+		HAL_GPIO_WritePin(led[1].port, led[1].pin, GPIO_PIN_RESET);
+		//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_15);
+	}
+
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+	if(huart == &huart4){
+		HAL_GPIO_WritePin(led[1].port, led[1].pin, GPIO_PIN_SET);
+		__HAL_TIM_SET_COUNTER(&htim16, 0);
+		HAL_UART_Receive_IT(&huart4, (uint8_t*)transmitStatusPacket, sizeof(transmitStatusPacket));
 	}
 }
 /* Function Body End */
