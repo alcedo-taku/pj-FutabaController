@@ -17,6 +17,8 @@
 #include "GpioRead.hpp"
 #include "encoder.hpp"
 #include "xbee.hpp"
+#include "lcdst7032.hpp"
+#include "PwmSounds.hpp"
 /* Include End */
 
 /* Define Begin */
@@ -25,6 +27,8 @@
 #define XBee_AT_MODE 0
 #define XBee_CLASS_DEBUG 1
 #define I2C 0
+#define MUSIC 0
+#define LCD 0
 /* Define End */
 
 
@@ -97,6 +101,19 @@ GpioRead readEdt[] = {
 		GpioRead(edtPin[3].port, edtPin[3].pin, 1),
 		GpioRead(edtPin[4].port, edtPin[4].pin, 1)
 };
+
+Encoder dial(&htim4);
+int32_t count;
+
+#if MUSIC
+PwmSounds music(htim3);
+#endif
+
+#if LCD
+char moji1[] = "vel:   mm/ms    ";
+char moji2[] = "w:     rad/ms   ";
+lcdSt7032 lcd(&hi2c2, 1000);
+#endif
 /* Variable End */
 
 /* Function Prototype Begin */
@@ -108,7 +125,6 @@ void init(void){
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adcbuf1, 4);
 	HAL_ADC_Start_DMA(&hadc2, (uint32_t *)adcbuf2, 3);
 	HAL_ADC_Start_DMA(&hadc3, (uint32_t *)adcbuf3, 2);
-	//music 起動音
 
 	//adcオフセット値
 	HAL_Delay(10);
@@ -120,7 +136,23 @@ void init(void){
 	HAL_TIM_Base_Start_IT(&htim17);
 	HAL_TIM_Base_Start_IT(&htim16);
 	
+	//encoder start
+	dial.start();
+
+	//uart start
 	HAL_UART_Receive_IT(&huart4, (uint8_t*)transmitStatusPacket, sizeof(transmitStatusPacket));
+
+#if MUSIC
+	//music 起動音
+	music.startSounds();
+	while(music.updateSounds()){
+	}
+#endif
+
+#if LCD
+	//lcd
+	lcd.initLCD(0b100011);
+#endif
 }
 
 void loop(void){
@@ -178,12 +210,22 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		data1.stk[1] = - (adcbuf1[0] - stkOffset[1] );
 		data1.stk[2] =   (adcbuf1[1] - stkOffset[2] );
 		data1.stk[3] = - (adcbuf1[2] - stkOffset[3] );
+		for(uint8_t i=0; i < 4; i++){
+			if(-2 <= data1.stk[i] && data1.stk[i] <= 2){
+				data1.stk[i] = 0;
+			}
+		}
 
 		data1.vr[0]  = 255 - adcbuf2[1];
 		data1.vr[1]  = 255 - adcbuf2[2];
 		data1.vr[2]  = 255 - adcbuf1[3];
 		data1.vr[3]  = 255 - adcbuf3[0];
 		data1.vr[4]  = 255 - adcbuf3[1];
+
+		//update encoder
+		dial.update();
+		count = dial.getCount();
+
 		/*update input interface end*/
 
 #if I2C
@@ -205,6 +247,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 //		}else{
 //			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
 //		}
+#if LCD
+		for(uint8_t i = 0; i < 16; i++) { // 1LINE
+			lcd.writeData(moji1[i]);
+		}
+		lcd.setDDRAMaddress(0x40);
+		for(uint8_t i = 0; i < 16; i++) { // 2LINE
+			lcd.writeData(moji2[i]);
+		}
+#endif
 	}else if(htim == &htim16){
 		HAL_GPIO_WritePin(led[1].port, led[1].pin, GPIO_PIN_RESET);
 		//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_15);

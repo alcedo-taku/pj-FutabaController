@@ -33,6 +33,8 @@
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.assembler.option.includepaths.842799780" name="Include paths (-I)" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.assembler.option.includepaths" valueType="includePath">
 									<listOptionValue builtIn="false" value="../XBeeAPI_lib"/>
 									<listOptionValue builtIn="false" value="../encorer_lib"/>
+									<listOptionValue builtIn="false" value="../lcd_lib"/>
+									<listOptionValue builtIn="false" value="../sound_lib"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.assembler.input.1686841633" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.assembler.input"/>
 							</tool>
@@ -52,6 +54,8 @@
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Device/ST/STM32F3xx/Include"/>
 									<listOptionValue builtIn="false" value="../XBeeAPI_lib"/>
 									<listOptionValue builtIn="false" value="../encorer_lib"/>
+									<listOptionValue builtIn="false" value="../lcd_lib"/>
+									<listOptionValue builtIn="false" value="../sound_lib"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.395764710" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>
@@ -71,6 +75,8 @@
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Device/ST/STM32F3xx/Include"/>
 									<listOptionValue builtIn="false" value="../XBeeAPI_lib"/>
 									<listOptionValue builtIn="false" value="../encorer_lib"/>
+									<listOptionValue builtIn="false" value="../lcd_lib"/>
+									<listOptionValue builtIn="false" value="../sound_lib"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.cpp.compiler.input.cpp.52884782" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.cpp.compiler.input.cpp"/>
 							</tool>
@@ -110,11 +116,12 @@
 						</tool>
 					</fileInfo>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="sound_lib"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="encorer_lib"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="XBeeAPI_lib"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="XBeeAPI_lib"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="encorer_lib"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="lcd_lib"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="sound_lib"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
