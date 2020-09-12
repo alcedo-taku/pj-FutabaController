@@ -30,9 +30,11 @@ void GpioRead::update(){
 	*/
 	pinState = originalPinState;
 
-	//holdValueを反転
 	if(getPressed()){
+		//holdValueを反転
 		holdValue = !holdValue;
+		//long pressed
+		pressedTim = HAL_GetTick();
 	}
 }
 
@@ -92,5 +94,18 @@ uint8_t GpioRead::getStickyRepeatedly(){
 }
 
 uint8_t GpioRead::getStickyHold(){ //hold down until button is pressed again
-		return holdValue;
+	return holdValue;
+}
+
+void GpioRead::updateLongPressed(uint16_t tim){
+	if(pressedTim+tim < HAL_GetTick()){
+		pressedTim = 0;
+		longPressed = 1;
+	}else{
+		longPressed = 0;
+	}
+}
+
+uint8_t GpioRead::getLongPressed(){
+	return longPressed;
 }

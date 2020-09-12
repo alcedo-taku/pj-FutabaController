@@ -21,7 +21,9 @@ private:
 	bool holdValue;
 	bool repeatedly;
 	bool stickyRepeatedly;
+	bool longPressed;
 	uint8_t delayTim; //chattering
+	uint16_t pressedTim;
 public:
 	GpioRead(GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin, bool normalState);
 	void update();
@@ -34,6 +36,8 @@ public:
 	void updateStickyRepeatedly(uint16_t outputPeriod, uint16_t waitingTim);
 	uint8_t getStickyRepeatedly(); //repeatedly until button is pressed again
 	uint8_t getStickyHold(); //hold down until button is pressed again
+	void updateLongPressed(uint16_t tim);
+	uint8_t getLongPressed();
 };
 
 

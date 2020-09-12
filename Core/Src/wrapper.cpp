@@ -24,11 +24,13 @@
 /* Define Begin */
 #define numberGPIO 20
 #define number
+constexpr uint8_t stk0Range = 2;
+
 #define XBee_AT_MODE 0
 #define XBee_CLASS_DEBUG 1
 #define I2C 0
-#define MUSIC 0
-#define LCD 0
+#define MUSIC 1
+#define LCD 1
 /* Define End */
 
 
@@ -45,7 +47,6 @@ Gpio sw2Pin[5] = { {GPIOC, GPIO_PIN_4}, {GPIOC, GPIO_PIN_5}, {GPIOB, GPIO_PIN_0}
 Gpio btnPin[6] = { {GPIOC, GPIO_PIN_2}, {GPIOC, GPIO_PIN_1}, {GPIOC, GPIO_PIN_0}, {GPIOC, GPIO_PIN_15}, {GPIOB, GPIO_PIN_8}, {GPIOB, GPIO_PIN_9} };
 Gpio edtPin[5] = { {GPIOC, GPIO_PIN_14}, {GPIOC, GPIO_PIN_13}, {GPIOC, GPIO_PIN_6}, {GPIOB, GPIO_PIN_15}, {GPIOB, GPIO_PIN_3} };
 Gpio led[2]    = { {GPIOD, GPIO_PIN_2}, {GPIOA, GPIO_PIN_3} };
-uint8_t testSw1[5];
 
 //adc
 uint8_t adcbuf1[5] = {};
@@ -106,13 +107,13 @@ Encoder dial(&htim4);
 int32_t count;
 
 #if MUSIC
-PwmSounds music(htim3);
+PwmSounds music;
 #endif
 
 #if LCD
 char moji1[] = "vel:   mm/ms    ";
 char moji2[] = "w:     rad/ms   ";
-lcdSt7032 lcd(&hi2c2, 1000);
+lcdSt7032 lcd(&hi2c1, 1000);
 #endif
 /* Variable End */
 
@@ -121,6 +122,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 /* Function Prototype End */
 
 void init(void){
+
+#if MUSIC
+	//music 起動音
+	music.setTimer(htim3, TIM_CHANNEL_2);
+	music.startSounds();
+	while(music.updateSounds()){
+	}
+#endif
+
 	//adc start
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adcbuf1, 4);
 	HAL_ADC_Start_DMA(&hadc2, (uint32_t *)adcbuf2, 3);
@@ -142,17 +152,21 @@ void init(void){
 	//uart start
 	HAL_UART_Receive_IT(&huart4, (uint8_t*)transmitStatusPacket, sizeof(transmitStatusPacket));
 
-#if MUSIC
-	//music 起動音
-	music.startSounds();
-	while(music.updateSounds()){
-	}
-#endif
-
 #if LCD
 	//lcd
 	lcd.initLCD(0b100011);
 #endif
+
+#if LCD
+		for(uint8_t i = 0; i < 16; i++) { // 1LINE
+			lcd.writeData(moji1[i]);
+		}
+		lcd.setDDRAMaddress(0x40);
+		for(uint8_t i = 0; i < 16; i++) { // 2LINE
+			lcd.writeData(moji2[i]);
+		}
+#endif
+
 }
 
 void loop(void){
@@ -211,7 +225,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		data1.stk[2] =   (adcbuf1[1] - stkOffset[2] );
 		data1.stk[3] = - (adcbuf1[2] - stkOffset[3] );
 		for(uint8_t i=0; i < 4; i++){
-			if(-2 <= data1.stk[i] && data1.stk[i] <= 2){
+			if ( stk0Range < data1.stk[i] ){
+				data1.stk[i] -= stk0Range;
+			}else if ( data1.stk[i] < -stk0Range ){
+				data1.stk[i] += stk0Range;
+			}else {
 				data1.stk[i] = 0;
 			}
 		}
@@ -230,7 +248,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 #if I2C
 		//i2c通信
-		if( HAL_I2C_Master_Transmit(&hi2c1, Address << 1, &data, sizeof(data), 0xFFF) ){
+		if( HAL_I2C_Master_Transmit(&hi2c2, Address << 1, &data, sizeof(data), 0xFFF) ){
 			HAL_GPIO_WritePin(GPIOx::trim[2], GPIO_Pin::trim[2], GPIO_PIN_SET);
 		}else{
 			HAL_GPIO_WritePin(GPIOx::trim[2], GPIO_Pin::trim[2], GPIO_PIN_RESET);
@@ -247,15 +265,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 //		}else{
 //			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
 //		}
-#if LCD
-		for(uint8_t i = 0; i < 16; i++) { // 1LINE
-			lcd.writeData(moji1[i]);
-		}
-		lcd.setDDRAMaddress(0x40);
-		for(uint8_t i = 0; i < 16; i++) { // 2LINE
-			lcd.writeData(moji2[i]);
-		}
-#endif
+
 	}else if(htim == &htim16){
 		HAL_GPIO_WritePin(led[1].port, led[1].pin, GPIO_PIN_RESET);
 		//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_15);
