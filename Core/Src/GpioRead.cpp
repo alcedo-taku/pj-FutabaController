@@ -7,10 +7,10 @@
 
 #include "GpioRead.hpp"
 
-GpioRead::GpioRead(GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin, bool normalState) : GPIOx(GPIOx), GPIO_Pin(GPIO_Pin), normalState(normalState) {
+GpioReader::GpioReader(GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin, bool normalState) : GPIOx(GPIOx), GPIO_Pin(GPIO_Pin), normalState(normalState) {
 }
 
-void GpioRead::update(){
+void GpioReader::update(){
 	prvPinState = pinState;
 
 	originalPinState = HAL_GPIO_ReadPin(GPIOx, GPIO_Pin);
@@ -38,22 +38,22 @@ void GpioRead::update(){
 	}
 }
 
-void GpioRead::setChatteringDelayTim(uint8_t tmpDelayTim){
+void GpioReader::setChatteringDelayTim(uint8_t tmpDelayTim){
 	delayTim = tmpDelayTim;
 }
-uint8_t GpioRead::getPressed(){
+uint8_t GpioReader::getPressed(){
 	return (prvPinState ^ pinState) & pinState;
 }
 
-uint8_t GpioRead::getReleased(){
+uint8_t GpioReader::getReleased(){
 	return (prvPinState ^ pinState) & prvPinState;
 }
 
-uint8_t GpioRead::getDuring(){
+uint8_t GpioReader::getDuring(){
 	return pinState;
 }
 
-void GpioRead::updateRepeatedly(uint16_t outputPeriod, uint16_t waitingTim){ //while the button is down
+void GpioReader::updateRepeatedly(uint16_t outputPeriod, uint16_t waitingTim){ //while the button is down
 	static uint32_t tim = HAL_GetTick();
 	static uint16_t period;
 	if(getPressed()){
@@ -69,11 +69,11 @@ void GpioRead::updateRepeatedly(uint16_t outputPeriod, uint16_t waitingTim){ //w
 	}
 }
 
-uint8_t GpioRead::getRepeatedly(){
+uint8_t GpioReader::getRepeatedly(){
 	return repeatedly;
 }
 
-void GpioRead::updateStickyRepeatedly(uint16_t outputPeriod, uint16_t waitingTim){ //repeatedly until button is pressed again
+void GpioReader::updateStickyRepeatedly(uint16_t outputPeriod, uint16_t waitingTim){ //repeatedly until button is pressed again
 	static uint32_t tim = HAL_GetTick();
 	static uint16_t period;
 	if(getPressed()){
@@ -89,15 +89,15 @@ void GpioRead::updateStickyRepeatedly(uint16_t outputPeriod, uint16_t waitingTim
 	}
 }
 
-uint8_t GpioRead::getStickyRepeatedly(){
+uint8_t GpioReader::getStickyRepeatedly(){
 	return stickyRepeatedly;
 }
 
-uint8_t GpioRead::getStickyHold(){ //hold down until button is pressed again
+uint8_t GpioReader::getStickyHold(){ //hold down until button is pressed again
 	return holdValue;
 }
 
-void GpioRead::updateLongPressed(uint16_t tim){
+void GpioReader::updateLongPressed(uint16_t tim){
 	if(pressedTim+tim < HAL_GetTick()){
 		pressedTim = 0;
 		longPressed = 1;
@@ -106,6 +106,6 @@ void GpioRead::updateLongPressed(uint16_t tim){
 	}
 }
 
-uint8_t GpioRead::getLongPressed(){
+uint8_t GpioReader::getLongPressed(){
 	return longPressed;
 }

@@ -10,7 +10,7 @@
 
 #include "gpio.h"
 
-class GpioRead {
+class GpioReader {
 private:
 	GPIO_TypeDef * GPIOx;
 	uint16_t GPIO_Pin;

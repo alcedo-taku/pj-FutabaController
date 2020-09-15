@@ -71,36 +71,36 @@ DataControllerToMain data1;
 xbee_c<sizeof(DataControllerToMain)+18> xbee;
 uint8_t transmitStatusPacket[xbee.getTransmitStatusPacketSize()];
 
-GpioRead readTrm[] = {
-		GpioRead(trmPin[0].port, trmPin[0].pin, 1),
-		GpioRead(trmPin[1].port, trmPin[1].pin, 1),
-		GpioRead(trmPin[2].port, trmPin[2].pin, 1),
-		GpioRead(trmPin[3].port, trmPin[3].pin, 1),
-		GpioRead(trmPin[4].port, trmPin[4].pin, 1),
-		GpioRead(trmPin[5].port, trmPin[5].pin, 1),
-		GpioRead(trmPin[6].port, trmPin[6].pin, 1),
-		GpioRead(trmPin[7].port, trmPin[7].pin, 1)
+GpioReader readTrm[] = {
+		GpioReader(trmPin[0].port, trmPin[0].pin, 1),
+		GpioReader(trmPin[1].port, trmPin[1].pin, 1),
+		GpioReader(trmPin[2].port, trmPin[2].pin, 1),
+		GpioReader(trmPin[3].port, trmPin[3].pin, 1),
+		GpioReader(trmPin[4].port, trmPin[4].pin, 1),
+		GpioReader(trmPin[5].port, trmPin[5].pin, 1),
+		GpioReader(trmPin[6].port, trmPin[6].pin, 1),
+		GpioReader(trmPin[7].port, trmPin[7].pin, 1)
 };
-GpioRead readSw1[] = {
-		GpioRead(sw1Pin[0].port, sw1Pin[0].pin, 1),
-		GpioRead(sw1Pin[1].port, sw1Pin[1].pin, 1),
-		GpioRead(sw1Pin[2].port, sw1Pin[2].pin, 1),
-		GpioRead(sw1Pin[3].port, sw1Pin[3].pin, 1),
-		GpioRead(sw1Pin[4].port, sw1Pin[4].pin, 1)
+GpioReader readSw1[] = {
+		GpioReader(sw1Pin[0].port, sw1Pin[0].pin, 1),
+		GpioReader(sw1Pin[1].port, sw1Pin[1].pin, 1),
+		GpioReader(sw1Pin[2].port, sw1Pin[2].pin, 1),
+		GpioReader(sw1Pin[3].port, sw1Pin[3].pin, 1),
+		GpioReader(sw1Pin[4].port, sw1Pin[4].pin, 1)
 };
-GpioRead readSw2[] = {
-		GpioRead(sw2Pin[0].port, sw2Pin[0].pin, 1),
-		GpioRead(sw2Pin[1].port, sw2Pin[1].pin, 1),
-		GpioRead(sw2Pin[2].port, sw2Pin[2].pin, 0),
-		GpioRead(sw2Pin[3].port, sw2Pin[3].pin, 0),
-		GpioRead(sw2Pin[4].port, sw2Pin[4].pin, 0)
+GpioReader readSw2[] = {
+		GpioReader(sw2Pin[0].port, sw2Pin[0].pin, 1),
+		GpioReader(sw2Pin[1].port, sw2Pin[1].pin, 1),
+		GpioReader(sw2Pin[2].port, sw2Pin[2].pin, 0),
+		GpioReader(sw2Pin[3].port, sw2Pin[3].pin, 0),
+		GpioReader(sw2Pin[4].port, sw2Pin[4].pin, 0)
 };
-GpioRead readEdt[] = {
-		GpioRead(edtPin[0].port, edtPin[0].pin, 1),
-		GpioRead(edtPin[1].port, edtPin[1].pin, 1),
-		GpioRead(edtPin[2].port, edtPin[2].pin, 1),
-		GpioRead(edtPin[3].port, edtPin[3].pin, 1),
-		GpioRead(edtPin[4].port, edtPin[4].pin, 1)
+GpioReader readEdt[] = {
+		GpioReader(edtPin[0].port, edtPin[0].pin, 1),
+		GpioReader(edtPin[1].port, edtPin[1].pin, 1),
+		GpioReader(edtPin[2].port, edtPin[2].pin, 1),
+		GpioReader(edtPin[3].port, edtPin[3].pin, 1),
+		GpioReader(edtPin[4].port, edtPin[4].pin, 1)
 };
 
 Encoder dial(&htim4);
@@ -165,6 +165,7 @@ void init(void){
 		for(uint8_t i = 0; i < 16; i++) { // 2LINE
 			lcd.writeData(moji2[i]);
 		}
+		//a変数をto_stringを使って、文字列に変換して代入する
 #endif
 
 }
