@@ -25,7 +25,7 @@ private:
 	uint8_t delayTim; //chattering
 	uint16_t pressedTim;
 public:
-	GpioRead(GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin, bool normalState);
+	GpioReader(GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin, bool normalState);
 	void update();
 	void setChatteringDelayTim(uint8_t tmpDelayTim);
 	uint8_t getPressed();
