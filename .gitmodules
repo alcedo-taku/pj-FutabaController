@@ -10,3 +10,6 @@
 [submodule "lcd_lib"]
 	path = lcd_lib
 	url = https://gitlab.com/takuji.coroton.thanks/lcd-st7032.git
+[submodule "PWM_Sound"]
+	path = PWM_Sound
+	url = https://gitlab.com/takuji.coroton.thanks/pwm-sound.git
