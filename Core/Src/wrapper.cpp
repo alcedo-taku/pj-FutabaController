@@ -107,7 +107,7 @@ Encoder dial(&htim4);
 int32_t count;
 
 #if MUSIC
-PwmSounds music;
+PwmSounds music(htim3, TIM_CHANNEL_2);
 #endif
 
 #if LCD
@@ -125,9 +125,8 @@ void init(void){
 
 #if MUSIC
 	//music 起動音
-	music.setTimer(htim3, TIM_CHANNEL_2);
-	music.startSounds();
-	while(music.updateSounds()){
+	music.start_sounds();
+	while(music.update_sounds()){
 	}
 #endif
 
