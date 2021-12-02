@@ -210,14 +210,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 		//ADC
 		//update offset 符号はあとから変える
-		stkOffset[0] -= readTrm[0].getRepeatedly();
-		stkOffset[0] += readTrm[1].getRepeatedly();
-		stkOffset[1] -= readTrm[2].getRepeatedly();
-		stkOffset[1] += readTrm[3].getRepeatedly();
-		stkOffset[2] += readTrm[6].getRepeatedly();
-		stkOffset[2] -= readTrm[7].getRepeatedly();
-		stkOffset[3] += readTrm[4].getRepeatedly();
-		stkOffset[3] -= readTrm[5].getRepeatedly();
+//		stkOffset[0] -= readTrm[0].getRepeatedly();
+//		stkOffset[0] += readTrm[1].getRepeatedly();
+//		stkOffset[1] -= readTrm[2].getRepeatedly();
+//		stkOffset[1] += readTrm[3].getRepeatedly();
+//		stkOffset[2] += readTrm[6].getRepeatedly();
+//		stkOffset[2] -= readTrm[7].getRepeatedly();
+//		stkOffset[3] += readTrm[4].getRepeatedly();
+//		stkOffset[3] -= readTrm[5].getRepeatedly();
 
 		//uprate adc
 		data1.stk[0] =   (adcbuf2[0] - stkOffset[0] );
