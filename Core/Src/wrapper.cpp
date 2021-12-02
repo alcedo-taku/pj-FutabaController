@@ -24,7 +24,7 @@
 /* Define Begin */
 #define numberGPIO 20
 #define number
-constexpr uint8_t stk0Range = 2;
+constexpr uint8_t stk0Range = 2; // スティックの0の範囲を定義
 
 #define XBee_AT_MODE 0
 #define XBee_CLASS_DEBUG 1
@@ -46,7 +46,7 @@ Gpio sw1Pin[5] = { {GPIOA, GPIO_PIN_6}, {GPIOA, GPIO_PIN_7}, {GPIOB, GPIO_PIN_2}
 Gpio sw2Pin[5] = { {GPIOC, GPIO_PIN_4}, {GPIOC, GPIO_PIN_5}, {GPIOB, GPIO_PIN_0}, {GPIOB, GPIO_PIN_12}, {GPIOB, GPIO_PIN_14} };
 Gpio btnPin[6] = { {GPIOC, GPIO_PIN_2}, {GPIOC, GPIO_PIN_1}, {GPIOC, GPIO_PIN_0}, {GPIOC, GPIO_PIN_15}, {GPIOB, GPIO_PIN_8}, {GPIOB, GPIO_PIN_9} };
 Gpio edtPin[5] = { {GPIOC, GPIO_PIN_14}, {GPIOC, GPIO_PIN_13}, {GPIOC, GPIO_PIN_6}, {GPIOB, GPIO_PIN_15}, {GPIOB, GPIO_PIN_3} };
-Gpio led[2]    = { {GPIOD, GPIO_PIN_2}, {GPIOA, GPIO_PIN_3} };
+Gpio led[2]    = { {GPIOD, GPIO_PIN_2}, {GPIOA, GPIO_PIN_3} }; // 背面緑, 前面青
 
 //adc
 uint8_t adcbuf1[5] = {};
@@ -164,7 +164,7 @@ void init(void){
 		for(uint8_t i = 0; i < 16; i++) { // 2LINE
 			lcd.writeData(moji2[i]);
 		}
-		//a変数をto_stringを使って、文字列に変換して代入する
+		// 変数をto_stringを使って、文字列に変換して代入する
 #endif
 
 }
@@ -181,35 +181,35 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim == &htim17){
 		HAL_GPIO_TogglePin(led[0].port, led[0].pin);
 		/*update input interface begin*/
-		//GPIO
-		//trm
+		// GPIO
+		// trm
 		data1.trm = 0;
 		for(uint8_t i=0; i < (sizeof(trmPin)/sizeof(Gpio)); i++){
 			readTrm[i].update();
 			readTrm[i].updateRepeatedly(200, 1000);
 			data1.trm |= readTrm[i].getRepeatedly() << i;
 		}
-		//sw1
+		// sw1
 		data1.sw1 = 0;
 		for(uint8_t i=0; i < 5/*(sizeof(sw1Pin)/sizeof(Gpio))*/; i++){
 			readSw1[i].update();
 			data1.sw1 |= readSw1[i].getDuring() << i;
 		}
-		//sw2
+		// sw2
 		data1.sw2 = 0;
 		for(uint8_t i=0; i < (sizeof(sw2Pin)/sizeof(Gpio)); i++){
 			readSw2[i].update();
 			data1.sw2 |= readSw2[i].getDuring() << i;
 		}
-		//edt
+		// edt
 		data1.edt = 0;
 		for(uint8_t i=0; i < (sizeof(edtPin)/sizeof(Gpio)); i++){
 			readEdt[i].update();
 			data1.edt |= readEdt[i].getPressed() << i;
 		}
 
-		//ADC
-		//update offset 符号はあとから変える
+		// ADC
+		// update offset 符号はあとから変える
 //		stkOffset[0] -= readTrm[0].getRepeatedly();
 //		stkOffset[0] += readTrm[1].getRepeatedly();
 //		stkOffset[1] -= readTrm[2].getRepeatedly();
@@ -219,11 +219,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 //		stkOffset[3] += readTrm[4].getRepeatedly();
 //		stkOffset[3] -= readTrm[5].getRepeatedly();
 
-		//uprate adc
+		// uprate adc
 		data1.stk[0] =   (adcbuf2[0] - stkOffset[0] );
 		data1.stk[1] = - (adcbuf1[0] - stkOffset[1] );
 		data1.stk[2] =   (adcbuf1[1] - stkOffset[2] );
 		data1.stk[3] = - (adcbuf1[2] - stkOffset[3] );
+		// スティックの0の範囲を設定
 		for(uint8_t i=0; i < 4; i++){
 			if ( stk0Range < data1.stk[i] ){
 				data1.stk[i] -= stk0Range;
@@ -240,14 +241,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		data1.vr[3]  = 255 - adcbuf3[0];
 		data1.vr[4]  = 255 - adcbuf3[1];
 
-		//update encoder
+		// update encoder
 		dial.update();
 		count = dial.getCount();
 
 		/*update input interface end*/
 
 #if I2C
-		//i2c通信
+		// i2c通信
 		if( HAL_I2C_Master_Transmit(&hi2c2, Address << 1, &data, sizeof(data), 0xFFF) ){
 			HAL_GPIO_WritePin(GPIOx::trim[2], GPIO_Pin::trim[2], GPIO_PIN_SET);
 		}else{
@@ -266,6 +267,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 //			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
 //		}
 
+	// 通信確認用
 	}else if(htim == &htim16){
 		HAL_GPIO_WritePin(led[1].port, led[1].pin, GPIO_PIN_RESET);
 		//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_15);
@@ -276,7 +278,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 	if(huart == &huart4){
 		HAL_GPIO_WritePin(led[1].port, led[1].pin, GPIO_PIN_SET);
-		__HAL_TIM_SET_COUNTER(&htim16, 0);
+		__HAL_TIM_SET_COUNTER(&htim16, 0); // 通信確認用タイマー割り込みのcounterをリセット
 		HAL_UART_Receive_IT(&huart4, (uint8_t*)transmitStatusPacket, sizeof(transmitStatusPacket));
 	}
 }
