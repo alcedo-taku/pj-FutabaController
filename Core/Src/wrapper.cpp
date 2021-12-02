@@ -123,13 +123,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 
 void init(void){
 
-#if MUSIC
-	//music 起動音
-	music.start_sounds();
-	while(music.update_sounds()){
-	}
-#endif
-
 	//adc start
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adcbuf1, 4);
 	HAL_ADC_Start_DMA(&hadc2, (uint32_t *)adcbuf2, 3);
@@ -165,6 +158,13 @@ void init(void){
 			lcd.writeData(moji2[i]);
 		}
 		// 変数をto_stringを使って、文字列に変換して代入する
+#endif
+
+#if MUSIC
+	//music 起動音
+	music.start_sounds();
+	while(music.update_sounds()){
+	}
 #endif
 
 }
