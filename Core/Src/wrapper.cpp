@@ -162,6 +162,8 @@ void init(void){
 
 #if MUSIC
 	//music 起動音
+	Music startup_sound[3] = { {SoundScale::hC, 150}, {SoundScale::hE, 150}, {SoundScale::hG, 200} }; // 音階と各音の時間を指定
+	music.set_sounds(startup_sound, 3);
 	music.start_sounds();
 	while(music.update_sounds()){
 	}
