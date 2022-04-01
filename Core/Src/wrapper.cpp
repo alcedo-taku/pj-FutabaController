@@ -31,6 +31,12 @@ constexpr uint8_t stk0Range = 2; // スティックの0の範囲を定義
 #define I2C 0
 #define MUSIC 1
 #define LCD 1
+
+constexpr uint64_t CONTROLLER_XBee_ADDRESS = 0x0013A20041B2255E; // コントローラのXBee
+//constexpr uint64_t TARGET_XBee_ADDRESS = 0x0013A2004198443F; //
+//constexpr uint64_t TARGET_XBee_ADDRESS = 0x0013A200419834AA; //
+constexpr uint64_t TARGET_XBee_ADDRESS = 0x0013A20041983C08; // 上州カウボーイ
+//constexpr uint64_t TARGET_XBee_ADDRESS = 0x0013A20041B2161E; // 私物
 /* Define End */
 
 
@@ -257,7 +263,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 			HAL_GPIO_WritePin(GPIOx::trim[2], GPIO_Pin::trim[2], GPIO_PIN_RESET);
 		}
 #endif
-		xbee.assemblyTransmitPacket(data1, (uint64_t)0x0013A200419834AA);
+		xbee.assemblyTransmitPacket(data1, (uint64_t)TARGET_XBee_ADDRESS);
 
 		HAL_UART_AbortReceive_IT(&huart4);
 		while(HAL_OK != HAL_UART_Transmit(&huart4, xbee.getBufAddress(), xbee.getBufSize(), 100));
