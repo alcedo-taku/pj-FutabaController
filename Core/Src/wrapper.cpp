@@ -13,6 +13,9 @@
 #include "tim.h"
 #include <iostream>
 #include <bitset>
+#include <sstream>
+#include <iomanip>
+
 
 #include "GpioRead.hpp"
 #include "encoder.hpp"
@@ -29,7 +32,7 @@ constexpr uint8_t stk0Range = 2; // スティックの0の範囲を定義
 #define XBee_AT_MODE 0
 #define XBee_CLASS_DEBUG 1
 #define I2C 0
-#define MUSIC 1
+#define MUSIC 0
 #define LCD 1
 
 constexpr uint64_t CONTROLLER_XBee_ADDRESS = 0x0013A20041B2255E; // コントローラのXBee
@@ -118,7 +121,8 @@ PwmSounds music(htim3, TIM_CHANNEL_2);
 
 #if LCD
 char moji1[] = "vel:   mm/ms    ";
-char moji2[] = "w:     rad/ms   ";
+//char moji2[] = "w:     rad/ms   ";
+char moji2[16];
 lcdSt7032 lcd(&hi2c1, 1000);
 #endif
 /* Variable End */
@@ -153,17 +157,6 @@ void init(void){
 #if LCD
 	//lcd
 	lcd.initLCD(0b100011);
-#endif
-
-#if LCD
-		for(uint8_t i = 0; i < 16; i++) { // 1LINE
-			lcd.writeData(moji1[i]);
-		}
-		lcd.setDDRAMaddress(0x40);
-		for(uint8_t i = 0; i < 16; i++) { // 2LINE
-			lcd.writeData(moji2[i]);
-		}
-		// 変数をto_stringを使って、文字列に変換して代入する
 #endif
 
 #if MUSIC
@@ -254,6 +247,26 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		count = dial.getCount();
 
 		/*update input interface end*/
+
+
+#if LCD
+		lcd.setCursor(0, 0);
+//		for(uint8_t i = 0; i < 16; i++) { // 1LINE
+//			lcd.writeData(moji1[i]);
+//		}
+		lcd.print("Futaba 9C Super");
+//		lcd.setDDRAMaddress(0x40);
+		for(uint8_t i = 0; i < 3; i++) { // 2LINE
+			lcd.setCursor(i*4, 1);
+		    std::stringstream num_stream;
+		    num_stream << std::setw(3) << std::to_string(data1.vr[i]); // std::setw(3) で隙間を作っている
+		    char num_char[256];
+		    num_stream.get(num_char, 256);
+			lcd.print(num_char);
+		}
+		// 変数をto_stringを使って、文字列に変換して代入する
+#endif
+
 
 #if I2C
 		// i2c通信
