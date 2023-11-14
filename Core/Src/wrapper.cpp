@@ -5,6 +5,14 @@
  *      Author: takuj
  */
 
+#define XBee_MODE 0
+#define XBee_AT_MODE 0
+#define XBee_CLASS_DEBUG 1
+#define CAN_MODE 1
+#define I2C 0
+#define MUSIC 0
+#define LCD 1
+
 #include "wrapper.hpp"
 #include "gpio.h"
 #include "adc.h"
@@ -19,7 +27,9 @@
 
 #include "GpioRead.hpp"
 #include "encoder.hpp"
+#if XBee
 #include "xbee.hpp"
+#endif
 #include "lcdst7032.hpp"
 #include "PwmSounds.hpp"
 /* Include End */
@@ -29,17 +39,13 @@
 #define number
 constexpr uint8_t stk0Range = 2; // スティックの0の範囲を定義
 
-#define XBee_AT_MODE 0
-#define XBee_CLASS_DEBUG 1
-#define I2C 0
-#define MUSIC 0
-#define LCD 1
-
+#if XBee
 constexpr uint64_t CONTROLLER_XBee_ADDRESS = 0x0013A20041B2255E; // コントローラのXBee
 //constexpr uint64_t TARGET_XBee_ADDRESS = 0x0013A2004198443F; //
 //constexpr uint64_t TARGET_XBee_ADDRESS = 0x0013A200419834AA; //
 constexpr uint64_t TARGET_XBee_ADDRESS = 0x0013A20041983C08; // 上州カウボーイ
 //constexpr uint64_t TARGET_XBee_ADDRESS = 0x0013A20041B2161E; // 私物
+#endif
 /* Define End */
 
 
@@ -76,9 +82,10 @@ struct DataControllerToMain{
 };
 DataControllerToMain data1;
 
-
+#if XBee
 xbee_c<sizeof(DataControllerToMain)+18> xbee;
 uint8_t transmitStatusPacket[xbee.getTransmitStatusPacketSize()];
+#endif
 
 GpioReader readTrm[] = {
 		GpioReader(trmPin[0].port, trmPin[0].pin, 1),
@@ -276,6 +283,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 			HAL_GPIO_WritePin(GPIOx::trim[2], GPIO_Pin::trim[2], GPIO_PIN_RESET);
 		}
 #endif
+
+#if XBee
 		xbee.assemblyTransmitPacket(data1, (uint64_t)TARGET_XBee_ADDRESS);
 
 		HAL_UART_AbortReceive_IT(&huart4);
@@ -287,15 +296,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 //		}else{
 //			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
 //		}
+#endif
 
 	// 通信確認用
 	}else if(htim == &htim16){
 		HAL_GPIO_WritePin(led[1].port, led[1].pin, GPIO_PIN_RESET);
 		//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_15);
 	}
-
 }
 
+#if XBee
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 	if(huart == &huart4){
 		HAL_GPIO_WritePin(led[1].port, led[1].pin, GPIO_PIN_SET);
@@ -303,4 +313,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 		HAL_UART_Receive_IT(&huart4, (uint8_t*)transmitStatusPacket, sizeof(transmitStatusPacket));
 	}
 }
+#endif
+
 /* Function Body End */
