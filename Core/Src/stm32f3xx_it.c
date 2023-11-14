@@ -59,6 +59,7 @@
 extern DMA_HandleTypeDef hdma_adc1;
 extern DMA_HandleTypeDef hdma_adc2;
 extern DMA_HandleTypeDef hdma_adc3;
+extern CAN_HandleTypeDef hcan;
 extern TIM_HandleTypeDef htim16;
 extern TIM_HandleTypeDef htim17;
 extern UART_HandleTypeDef huart4;
@@ -214,6 +215,20 @@ void DMA1_Channel1_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
 
   /* USER CODE END DMA1_Channel1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles CAN RX1 interrupt.
+  */
+void CAN_RX1_IRQHandler(void)
+{
+  /* USER CODE BEGIN CAN_RX1_IRQn 0 */
+
+  /* USER CODE END CAN_RX1_IRQn 0 */
+  HAL_CAN_IRQHandler(&hcan);
+  /* USER CODE BEGIN CAN_RX1_IRQn 1 */
+
+  /* USER CODE END CAN_RX1_IRQn 1 */
 }
 
 /**
