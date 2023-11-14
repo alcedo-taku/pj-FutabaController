@@ -82,6 +82,7 @@
 									<listOptionValue builtIn="false" value="../lcd_lib"/>
 									<listOptionValue builtIn="false" value="../sound_lib"/>
 									<listOptionValue builtIn="false" value="../PWM_Sound"/>
+									<listOptionValue builtIn="false" value="../CAN_library/can_user"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.cpp.compiler.input.cpp.52884782" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.cpp.compiler.input.cpp"/>
 							</tool>
@@ -121,11 +122,12 @@
 						</tool>
 					</fileInfo>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="PWM_Sound"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="encorer_lib"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="CAN_library/can_user"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="XBeeAPI_lib"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="PWM_Sound"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="XBeeAPI_lib"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="encorer_lib"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="lcd_lib"/>
 					</sourceEntries>
 				</configuration>
