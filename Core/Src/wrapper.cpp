@@ -77,6 +77,8 @@ uint8_t vrOffset[5];
 
 //communication data 通信データ
 DataCtrl2Main data_to_main;
+DataCtrl2Main_1 data_to_main_1;
+DataCtrl2Main_2 data_to_main_2;
 DataMain2Ctrl data_from_main;
 
 #if XBee
@@ -332,24 +334,26 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 #if CAN_MODE
 		/* CAN 送信 */
+		data_to_main_1.edt = data_to_main.edt;
+		data_to_main_1.stk = data_to_main.stk;
+		data_to_main_1.sw1 = data_to_main.sw1;
+		data_to_main_1.sw2 = data_to_main.sw2;
+		data_to_main_1.trm = data_to_main.trm;
+		data_to_main_2.vr  = data_to_main.vr;
 		static uint8_t can_transmit_count = 0;
 		switch(can_transmit_count){
 			case 0:
-				// to unit
-//				if (ctrl_num == 0) {
-//					can.setId(CAN_ID_STD, CanId::ctrl0_to_unit0);
-//				}else if (ctrl_num == 1){
-//					can.setId(CAN_ID_STD, CanId::ctrl1_to_unit1);
-//				}
-//				data_to_unit.debug_count++;
-//				can_state = can.transmit(sizeof(data_to_unit), (uint8_t*)&data_to_unit);
+				// to main 1
+				can.setId(CAN_ID_STD, CanId::ctrl_to_main_1);
+				can_state = can.transmit(sizeof(data_to_main_1), (uint8_t*)&data_to_main_1);
 				can_transmit_count++;
 				break;
 			case 1:
-				// to main
-				can.setId(CAN_ID_STD, CanId::ctrl_to_main);
-				can_state = can.transmit(sizeof(data_to_main), (uint8_t*)&data_to_main);
+				// to main 1
+				can.setId(CAN_ID_STD, CanId::ctrl_to_main_2);
+				can_state = can.transmit(sizeof(data_to_main_2), (uint8_t*)&data_to_main_2);
 				can_transmit_count++;
+				can_transmit_count = 0; // ラストは0にする
 				break;
 			case 2:
 				can_transmit_count++;

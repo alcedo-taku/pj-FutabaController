@@ -20,8 +20,22 @@ struct DataCtrl2Main{
 	uint8_t sw2; // E↓, E↑, F, G, H
 	uint8_t btn; // 未実装
 	uint8_t edt; // Mode/Page, End, Select↑, Select↓
-	int8_t stk[4]; // RX, RY, LX, LY
-	uint8_t vr[5]; // VR(A), VR(B), VR(C), Left, Right
+	std::array<int8_t,4> stk; // RX, RY, LX, LY
+	std::array<uint8_t,5> vr; // VR(A), VR(B), VR(C), Left, Right
+};
+
+/**
+ * controller → main の通信データ
+ */
+struct DataCtrl2Main_1{
+	uint8_t trm; // RX-p, RX-n, RY-n, RY-p, LY-n, LY-p, LX-p, Lx-n
+	uint8_t sw1; // A, B, C↓, C↑, D
+	uint8_t sw2; // E↓, E↑, F, G, H
+	uint8_t edt; // Mode/Page, End, Select↑, Select↓
+	std::array<int8_t,4> stk; // RX, RY, LX, LY
+};
+struct DataCtrl2Main_2{
+	std::array<uint8_t,5> vr; // VR(A), VR(B), VR(C), Left, Right
 };
 
 /**
@@ -35,8 +49,9 @@ struct DataMain2Ctrl{
  * can data の id
  */
 struct CanId{
-	static constexpr uint32_t main_to_ctrl	= 0x114; // 不要
-	static constexpr uint32_t ctrl_to_main  = 0x107; // 不要
+	static constexpr uint32_t main_to_ctrl	= 0x114;
+	static constexpr uint32_t ctrl_to_main_1  = 0x107;
+	static constexpr uint32_t ctrl_to_main_2  = 0x108;
 };
 //CanId can_id;
 
