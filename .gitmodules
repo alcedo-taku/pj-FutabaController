@@ -13,9 +13,6 @@
 [submodule "PWM_Sound"]
 	path = PWM_Sound
 	url = https://gitlab.com/takuji.coroton.thanks/pwm-sound.git
-[submodule "CAN_library"]
-	path = CAN_library
-	url = https://gitlab.com/grcc/library/can.git
 [submodule "HAL_Extension"]
 	path = HAL_Extension
 	url = https://github.com/roboken-G/HAL_Extension.git

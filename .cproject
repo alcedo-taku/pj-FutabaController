@@ -129,13 +129,12 @@
 						</tool>
 					</fileInfo>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="CAN_library/can_user"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HAL_Extension"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="PWM_Sound"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="XBeeAPI_lib"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="data_type"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="data_type_futaba"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="encorer_lib"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="lcd_lib"/>
 					</sourceEntries>
