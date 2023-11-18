@@ -32,4 +32,11 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>com.st.stm32cube.ide.mcu.MCUCubeIdeServicesRevAev2ProjectNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>data_type_futaba</name>
+			<type>2</type>
+			<location>C:/user_file/STM32CubeIDE_workspase/2023/futaba_controller/data_type</location>
+		</link>
+	</linkedResources>
 </projectDescription>
