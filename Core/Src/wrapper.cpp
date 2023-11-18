@@ -28,6 +28,7 @@
 
 #include "GpioRead.hpp"
 #include "encoder.hpp"
+#include "HAL_Extension.hpp"
 #if XBee_MODE
 #include "xbee.hpp"
 #endif

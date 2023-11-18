@@ -16,3 +16,6 @@
 [submodule "CAN_library"]
 	path = CAN_library
 	url = https://gitlab.com/grcc/library/can.git
+[submodule "HAL_Extension"]
+	path = HAL_Extension
+	url = https://github.com/roboken-G/HAL_Extension.git
