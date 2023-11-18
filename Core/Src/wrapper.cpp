@@ -12,6 +12,7 @@
 #define I2C 0
 #define MUSIC 1
 #define LCD 1
+#define LED_BLINK 1 // 通信確認用のLEDを点滅モードにするか点灯モードにするか
 
 #include "wrapper.hpp"
 #include "gpio.h"
@@ -369,14 +370,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	// 通信確認用
 	}else if(htim == &htim16){
         // 10Hz
+#if not LED_BLINK
 		HAL_GPIO_WritePin(ledPin[1].port, ledPin[1].pin, GPIO_PIN_RESET);
+#endif
 	}
 }
 
 #if XBee
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 	if(huart == &huart4){
+#if not LED_BLINK
 		HAL_GPIO_WritePin(ledPin[1].port, ledPin[1].pin, GPIO_PIN_SET);
+#endif
 		__HAL_TIM_SET_COUNTER(&htim16, 0); // 通信確認用タイマー割り込みのcounterをリセット
 		HAL_UART_Receive_IT(&huart4, (uint8_t*)transmitStatusPacket, sizeof(transmitStatusPacket));
 	}
@@ -404,7 +409,16 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
 		}
 	}
 	// 通信確認インジケータ
+#if LED_BLINK
+    static uint8_t blink_count = 0;
+    blink_count++;
+    if (blink_count == 100) {
+        HAL_GPIO_TogglePin(ledPin[1].port, ledPin[1].pin);
+        blink_count = 0;
+    }
+#else LED_BLINK
 	HAL_GPIO_WritePin(ledPin[1].port, ledPin[1].pin, GPIO_PIN_SET);
+#endif
 	__HAL_TIM_SET_COUNTER(&htim16, 0); // 通信確認用タイマー割り込みのcounterをリセット
 }
 #endif
