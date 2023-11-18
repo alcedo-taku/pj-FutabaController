@@ -32,9 +32,6 @@
 #if XBee_MODE
 #include "xbee.hpp"
 #endif
-#if CAN_MODE
-#include "can_user.hpp"
-#endif
 #include "lcdst7032.hpp"
 #include "PwmSounds.hpp"
 
@@ -89,13 +86,13 @@ uint8_t transmitStatusPacket[xbee.getTransmitStatusPacketSize()];
 #endif
 
 #if CAN_MODE
-CanUser can(&hcan);
+halex::CAN_ can(&hcan);
 uint32_t mailbox0_complete_count = 0;
 uint32_t mailbox1_complete_count = 0;
 uint32_t mailbox2_complete_count = 0;
 uint8_t can_transmit_count = 1;
 uint32_t rx_id; // debug用
-CAN_StatusType can_state;
+halex::CAN_StatusType can_state;
 HAL_CAN_StateTypeDef can_state_;
 uint16_t rx0_callback_count = 0;
 uint16_t transmit_frequency = 300; //データの更新周波数
@@ -135,6 +132,7 @@ GpioReader readEdt[] = {
 		GpioReader(edtPin[4].port, edtPin[4].pin, 1)
 };
 
+//halex::Encoder dial(&htim4);
 Encoder dial(&htim4);
 int32_t count;
 
@@ -185,7 +183,7 @@ void init(void){
 	can.init();
 	// 受信設定
 	can.setFilterActivationState(ENABLE); // フィルタを有効化
-	can.setFilterMode(CAN_FilterMode::PATH_FOUR_TYPE_STD_ID); // 16bitID リストモード ４種類のIDが追加可能
+    can.setFilterMode(halex::CAN_FilterMode::PATH_FOUR_TYPE_STD_ID); // 16bitID リストモード ４種類のIDが追加可能
 	can.setFilterBank(14); // どこまでのバンクを使うか
 	can.setStoreRxFifo(CAN_RX_FIFO0); // 使うFIFOメモリ＿
     can.setFourTypePathId(futaba_data::CanId::main_to_ctrl, 300, 200, 100);
@@ -395,7 +393,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
 	std::array<uint8_t,8>buf{};
 	can_state = can.receive(CAN_RX_FIFO0,(uint8_t*)&buf);
 	rx_id = can.getRxId();
-	if(can_state == CAN_StatusType::HAL_OK){
+    if (can_state == halex::CAN_StatusType::HAL_OK) {
 		__HAL_TIM_SET_COUNTER(&htim16, 0);
 //		disconnect_count = 0;
 		switch (can.getRxId()) {
