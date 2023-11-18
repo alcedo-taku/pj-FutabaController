@@ -9,6 +9,8 @@
 //constexpr uint8_t ACTR_ADDRESS = 02;
 //constexpr uint64_t TARGET_XBee_ADDRESS = 0x0013A2004198443F; // 運転段階用
 
+namespace futaba_data {
+
 /** 通信 **/
 
 /**
@@ -57,5 +59,6 @@ struct CanId{
 
 /** 通信 **/
 
+} /* futuba_data */
 
 #endif /* DATA_TYPE_CAN */

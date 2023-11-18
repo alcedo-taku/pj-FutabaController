@@ -36,7 +36,7 @@
 #include "lcdst7032.hpp"
 #include "PwmSounds.hpp"
 
-#include "data_type_can.hpp"
+#include "data_type_futaba.hpp"
 /* Include End */
 
 /* Define Begin */
@@ -76,10 +76,10 @@ uint8_t stkOffset[4];
 uint8_t vrOffset[5];
 
 //communication data 通信データ
-DataCtrl2Main data_to_main;
-DataCtrl2Main_1 data_to_main_1;
-DataCtrl2Main_2 data_to_main_2;
-DataMain2Ctrl data_from_main;
+futaba_data::DataCtrl2Main data_to_main;
+futaba_data::DataCtrl2Main_1 data_to_main_1;
+futaba_data::DataCtrl2Main_2 data_to_main_2;
+futaba_data::DataMain2Ctrl data_from_main;
 
 #if XBee
 xbee_c<sizeof(DataControllerToMain)+18> xbee;
@@ -186,7 +186,7 @@ void init(void){
 	can.setFilterMode(CAN_FilterMode::PATH_FOUR_TYPE_STD_ID); // 16bitID リストモード ４種類のIDが追加可能
 	can.setFilterBank(14); // どこまでのバンクを使うか
 	can.setStoreRxFifo(CAN_RX_FIFO0); // 使うFIFOメモリ＿
-	can.setFourTypePathId(CanId::main_to_ctrl, 300, 200, 100);
+    can.setFourTypePathId(futaba_data::CanId::main_to_ctrl, 300, 200, 100);
 	can.setFilterConfig(); // フィルターの設定を反映する
 	HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO0_MSG_PENDING); // 受信割り込みの有効化
 	// 送信設定
@@ -221,6 +221,7 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc){
 */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim == &htim17){
+        // 1kHz
 		HAL_GPIO_TogglePin(ledPin[0].port, ledPin[0].pin);
 		/*update input interface begin*/
 		// GPIO
@@ -344,13 +345,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		switch(can_transmit_count){
 			case 0:
 				// to main 1
-				can.setId(CAN_ID_STD, CanId::ctrl_to_main_1);
+                can.setId(CAN_ID_STD, futaba_data::CanId::ctrl_to_main_1);
 				can_state = can.transmit(sizeof(data_to_main_1), (uint8_t*)&data_to_main_1);
 				can_transmit_count++;
 				break;
 			case 1:
 				// to main 1
-				can.setId(CAN_ID_STD, CanId::ctrl_to_main_2);
+                can.setId(CAN_ID_STD, futaba_data::CanId::ctrl_to_main_2);
 				can_state = can.transmit(sizeof(data_to_main_2), (uint8_t*)&data_to_main_2);
 				can_transmit_count++;
 				can_transmit_count = 0; // ラストは0にする
@@ -367,6 +368,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 	// 通信確認用
 	}else if(htim == &htim16){
+        // 10Hz
 		HAL_GPIO_WritePin(ledPin[1].port, ledPin[1].pin, GPIO_PIN_RESET);
 	}
 }
@@ -392,7 +394,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
 //		disconnect_count = 0;
 		switch (can.getRxId()) {
 			// from main
-			case CanId::main_to_ctrl:
+            case futaba_data::CanId::main_to_ctrl:
 				memcpy(&data_from_main, &buf, sizeof(data_from_main));
 				break;
 			// from unit
