@@ -27,7 +27,6 @@
 #include <string.h> // memcpy()用
 
 #include "GpioRead.hpp"
-#include "encoder.hpp"
 #include "HAL_Extension.hpp"
 #if XBee_MODE
 #include "xbee.hpp"
@@ -132,8 +131,7 @@ GpioReader readEdt[] = {
 		GpioReader(edtPin[4].port, edtPin[4].pin, 1)
 };
 
-//halex::Encoder dial(&htim4);
-Encoder dial(&htim4);
+halex::Encoder dial(&htim4);
 int32_t count;
 
 #if MUSIC
