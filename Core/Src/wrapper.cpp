@@ -90,7 +90,7 @@ uint8_t transmitStatusPacket[xbee.getTransmitStatusPacketSize()];
 #endif
 
 #if CAN_MODE
-halex::CAN_ can(&hcan);
+halex::Can can(&hcan);
 uint32_t mailbox0_complete_count = 0;
 uint32_t mailbox1_complete_count = 0;
 uint32_t mailbox2_complete_count = 0;
