@@ -64,7 +64,12 @@ Gpio sw1Pin[5] = { {GPIOA, GPIO_PIN_6}, {GPIOA, GPIO_PIN_7}, {GPIOB, GPIO_PIN_2}
 Gpio sw2Pin[5] = { {GPIOC, GPIO_PIN_4}, {GPIOC, GPIO_PIN_5}, {GPIOB, GPIO_PIN_0}, {GPIOB, GPIO_PIN_12}, {GPIOB, GPIO_PIN_14} };
 Gpio btnPin[6] = { {GPIOC, GPIO_PIN_2}, {GPIOC, GPIO_PIN_1}, {GPIOC, GPIO_PIN_0}, {GPIOC, GPIO_PIN_15}, {GPIOB, GPIO_PIN_8}, {GPIOB, GPIO_PIN_9} };
 Gpio edtPin[5] = { {GPIOC, GPIO_PIN_14}, {GPIOC, GPIO_PIN_13}, {GPIOC, GPIO_PIN_6}, {GPIOB, GPIO_PIN_15}, {GPIOB, GPIO_PIN_3} };
-Gpio ledPin[2]    = { {GPIOD, GPIO_PIN_2}, {GPIOA, GPIO_PIN_3} }; // 背面緑, 前面青
+
+// led
+std::array<halex::GPIO, 2> led = {
+    halex::GPIO(GPIOD, GPIO_PIN_2),     // 0 背面緑
+    halex::GPIO(GPIOA, GPIO_PIN_3),     // 1 前面青
+};
 
 //adc
 uint8_t adcbuf1[5] = {};
@@ -220,7 +225,7 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim == &htim17){
         // 1kHz
-		HAL_GPIO_TogglePin(ledPin[0].port, ledPin[0].pin);
+		led[0].toggle();
 		/*update input interface begin*/
 		// GPIO
 		// trm
@@ -368,7 +373,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	}else if(htim == &htim16){
         // 10Hz
 #if not LED_BLINK
-		HAL_GPIO_WritePin(ledPin[1].port, ledPin[1].pin, GPIO_PIN_RESET);
+		led[1].reset();
 #endif
 	}
 }
@@ -410,11 +415,11 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
     static uint8_t blink_count = 0;
     blink_count++;
     if (blink_count == 100) {
-        HAL_GPIO_TogglePin(ledPin[1].port, ledPin[1].pin);
+        led[1].toggle();
         blink_count = 0;
     }
 #else LED_BLINK
-	HAL_GPIO_WritePin(ledPin[1].port, ledPin[1].pin, GPIO_PIN_SET);
+	led[1].set();
 #endif
 	__HAL_TIM_SET_COUNTER(&htim16, 0); // 通信確認用タイマー割り込みのcounterをリセット
 }
