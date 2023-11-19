@@ -9,7 +9,7 @@
 #define XBee_AT_MODE 0
 #define XBee_CLASS_DEBUG 1
 #define CAN_MODE 1
-#define I2C 0
+#define I2C_MODE 0
 #define MUSIC 1
 #define LCD 1
 #define LED_BLINK 1 // 通信確認用のLEDを点滅モードにするか点灯モードにするか
